@@ -1,0 +1,51 @@
+import {Component, OnInit, ViewEncapsulation} from '@angular/core';
+import {concat, fromEvent, interval, noop, observable, Observable, of, timer, merge, Subject, BehaviorSubject} from 'rxjs';
+import {delayWhen, filter, map, take, timeout} from 'rxjs/operators';
+import {createHttpObservable} from '../common/util';
+
+
+@Component({
+    selector: 'about',
+    templateUrl: './about.component.html',
+    styleUrls: ['./about.component.css']
+})
+export class AboutComponent implements OnInit {
+
+    ngOnInit() {
+
+        //Behaviour subject is similar to subject, but it allows late subscription.
+        //Goal of Behaviour subject is to always provide something to subscribers. Even if 
+        //subscription happens late. One default value is required here. Even before subscription happens
+        const subject = new BehaviorSubject(0);
+
+        
+        const series$ = subject.asObservable();
+
+        //This is early subscription
+        series$.subscribe(val => console.log('Early subscription: ' + val));
+
+       //emitting values
+        subject.next(1);
+        subject.next(2);
+        subject.next(3);
+      //  subject.complete();
+
+      setTimeout(() => {
+          // This won't log any values with subject.
+          //But with behavior subject, it will pick the last value
+        series$.subscribe(val => console.log('late subscription: ' + val));
+        //and if any new value further emitted, then it will pick the next value as well by both
+        subject.next(4);
+      }, 3000);
+
+  
+    }
+
+
+}
+
+
+
+
+
+
